@@ -5,6 +5,7 @@ from app.database import get_db
 from app.models.user import User
 from app.models.token_blacklist import TokenBlacklist
 from app.core.jwt import decode_token
+from app.core.logger  import logger
  
 security = HTTPBearer()
  
@@ -22,6 +23,9 @@ def get_current_user(
             detail='Invalid or expired token',
             headers={'WWW-Authenticate': 'Bearer'}
         )
+    
+    logger.warning("Invalid  Toekn  attenpt")
+
  
     # Check if token was blacklisted (logged out)
     blacklisted = db.query(TokenBlacklist).filter(TokenBlacklist.token == token).first()
@@ -33,7 +37,8 @@ def get_current_user(
     user = db.query(User).filter(User.id == int(user_id)).first()
     if not user or not user.is_active:
         raise HTTPException(status_code=401, detail='User not found or inactive')
- 
+
+
     return user
  
  
