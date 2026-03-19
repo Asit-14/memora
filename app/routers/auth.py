@@ -12,9 +12,11 @@ from app.core.jwt import create_access_token,decode_token,create_refresh_token
 
 from app.dependencies.auth import get_current_user,require_role
 
-
+from  app.core.logger import logger
 router =  APIRouter()
 security =  HTTPBearer()
+
+
 
 #   REGISTER ────
 @router.post('/register', response_model=UserResponse, status_code=201)
@@ -37,7 +39,6 @@ def register(user_data: UserCreate, db: Session = Depends(get_db)):
         username=user_data.username,
         hashed_password=hash_password(user_data.password)
     )
-
     db.add(new_user)
     db.commit()
     db.refresh(new_user)
@@ -48,7 +49,7 @@ def register(user_data: UserCreate, db: Session = Depends(get_db)):
 @router.post('/login', response_model=TokenResponse)
 def login(credentials: UserLogin, db: Session = Depends(get_db)):
     user = db.query(User).filter(User.email == credentials.email).first()
- 
+
     # Same error for wrong email OR wrong password (prevents user enumeration)
     if not user or not verify_password(credentials.password, user.hashed_password):
         raise HTTPException(status_code=401, detail='Invalid email or password')
