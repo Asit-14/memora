@@ -2,7 +2,7 @@ from sqlalchemy import Column, Integer, String, DateTime, Boolean
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from app.database import Base
-
+from app.core.logger import logger
 class User(Base):
     __tablename__ = 'users'
  
@@ -16,3 +16,5 @@ class User(Base):
     updated_at      = Column(DateTime(timezone=True), onupdate=func.now())
 
     notes = relationship('Note', back_populates='owner', cascade='all, delete-orphan')
+    logger.debug("User model initialized")
+
